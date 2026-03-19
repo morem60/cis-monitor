@@ -111,7 +111,10 @@ background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240
       <span class="tag tag-info">五軸線分析</span>
       <span class="tag tag-info">三重確認</span>
       <span class="tag tag-info">八大賣出訊號</span>
+      <span class="tag tag-info">AI 復盤教練</span>
+      <span class="tag tag-info">信號準確率追蹤</span>
       <span class="tag tag-info">即時 WebSocket</span>
+      <span class="tag tag-info">雲端同步</span>
     </div>
     <div class="mt-16 animate-bounce">
       <svg class="w-5 h-5 mx-auto text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
@@ -475,10 +478,165 @@ background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240
     </div>
   </div>
 </section>
-<!-- ============ SECTION 10: MARKET SEGREGATION ============ -->
+<!-- ============ SECTION 10: SIGNAL ACCURACY ============ -->
+<section class="section" id="sec-signal">
+  <div class="reveal">
+    <span class="sec-num">10 — SIGNAL ACCURACY TRACKER</span>
+    <h2 class="sec-title" style="color:var(--green)">信號準確率追蹤<span class="glow-green">。</span></h2>
+    <p class="sec-sub mb-10">每個信號發出後自動追蹤結果，用數據告訴你哪些判斷可靠、哪些需要調整。</p>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="card box-glow-green reveal">
+      <h4 class="font-mono text-sm text-green-400 tracking-widest mb-4">自動記錄與驗證</h4>
+      <div class="text-sm text-gray-400 space-y-3 leading-relaxed">
+        <p>每次掃描產生的信號自動記錄：</p>
+        <div class="space-y-2 mt-3">
+          <div class="flex items-center gap-3"><span class="tag" style="background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.3)">記錄</span><span class="text-gray-300">信號類型、方向、標的、當時價格</span></div>
+          <div class="flex items-center gap-3"><span class="tag tag-warning">追蹤</span><span class="text-gray-300">約 20 次掃描後檢查市場是否如預期移動</span></div>
+          <div class="flex items-center gap-3"><span class="tag tag-info">判定</span><span class="text-gray-300">自動判定 正確 / 錯誤 / 過期</span></div>
+        </div>
+        <p class="text-gray-600 text-xs mt-3">數據按日存檔，保留最近 7 天完整記錄</p>
+      </div>
+    </div>
+    <div class="card box-glow-cyan reveal">
+      <h4 class="font-mono text-sm text-cyan-400 tracking-widest mb-4">多維度統計分析</h4>
+      <div class="text-sm text-gray-400 space-y-2 leading-relaxed">
+        <p>Dashboard 即時顯示：</p>
+        <div class="grid grid-cols-2 gap-2 mt-3">
+          <div class="p-2 rounded" style="background:rgba(0,240,255,.04)"><span class="text-cyan-300 font-mono text-xs">總準確率</span></div>
+          <div class="p-2 rounded" style="background:rgba(0,240,255,.04)"><span class="text-cyan-300 font-mono text-xs">各類型準確率</span></div>
+          <div class="p-2 rounded" style="background:rgba(0,240,255,.04)"><span class="text-cyan-300 font-mono text-xs">最近信號明細</span></div>
+          <div class="p-2 rounded" style="background:rgba(0,240,255,.04)"><span class="text-cyan-300 font-mono text-xs">趨勢變化追蹤</span></div>
+        </div>
+        <div class="p-3 rounded-lg mt-3" style="background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.1)">
+          <p class="text-cyan-300 text-xs font-mono mb-1">調參依據</p>
+          <p class="text-gray-500 text-xs">哪類信號準 → 保持；哪類不準 → 調整對應參數。每次只調一個。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ SECTION 11: AI REVIEWER ============ -->
+<section class="section" id="sec-ai">
+  <div class="reveal">
+    <span class="sec-num">11 — AI TRADING COACH</span>
+    <h2 class="sec-title" style="color:var(--purple)">AI 復盤教練<span style="text-shadow:0 0 20px rgba(168,85,247,.5)">。</span></h2>
+    <p class="sec-sub mb-10">接入大語言模型，結合你的歷史數據和即時盤勢，給出個性化的復盤分析與交易建議。</p>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
+    <div class="card reveal" style="border-color:rgba(168,85,247,.2);box-shadow:0 0 20px rgba(168,85,247,.12),inset 0 0 20px rgba(168,85,247,.04)">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="w-3 h-3 rounded-full bg-purple-400 pulse"></span>
+        <span class="font-mono text-[.65rem] text-purple-400 tracking-widest">MULTI-MODEL</span>
+      </div>
+      <h3 class="text-lg font-bold text-white mb-3">四大模型自由切換</h3>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between items-center"><span class="text-gray-300">Claude (Anthropic)</span><span class="text-purple-300 font-mono text-xs">推理強</span></div>
+        <div class="flex justify-between items-center"><span class="text-gray-300">Gemini (Google)</span><span class="text-green-300 font-mono text-xs">免費額度</span></div>
+        <div class="flex justify-between items-center"><span class="text-gray-300">DeepSeek</span><span class="text-cyan-300 font-mono text-xs">極便宜</span></div>
+        <div class="flex justify-between items-center"><span class="text-gray-300">OpenAI GPT-4o</span><span class="text-yellow-300 font-mono text-xs">生態成熟</span></div>
+      </div>
+      <p class="text-gray-600 text-xs mt-3">Dashboard 上即時切換，API Key 加密存儲</p>
+    </div>
+    <div class="card box-glow-cyan reveal">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="w-3 h-3 rounded-full bg-cyan-400 pulse"></span>
+        <span class="font-mono text-[.65rem] text-cyan-400 tracking-widest">CONTEXT-AWARE</span>
+      </div>
+      <h3 class="text-lg font-bold text-white mb-3">歷史數據自動帶入</h3>
+      <div class="text-sm text-gray-400 space-y-2 leading-relaxed">
+        <p>每次對話自動附帶：</p>
+        <p>→ 近 7 天信號準確率統計</p>
+        <p>→ 各類型信號表現分析</p>
+        <p>→ 最近 AI 復盤摘要</p>
+        <p>→ 目前即時市場狀態</p>
+      </div>
+      <div class="p-3 rounded-lg mt-3" style="background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.1)">
+        <p class="text-cyan-300 text-xs font-mono">用得越久，AI 越懂你的交易模式</p>
+      </div>
+    </div>
+    <div class="card box-glow-gold reveal">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="w-3 h-3 rounded-full bg-yellow-400 pulse"></span>
+        <span class="font-mono text-[.65rem] text-yellow-400 tracking-widest">CUSTOMIZABLE</span>
+      </div>
+      <h3 class="text-lg font-bold text-white mb-3">完全自定義 Prompt</h3>
+      <div class="text-sm text-gray-400 space-y-2 leading-relaxed">
+        <p>內建 CIS 交易教練 Prompt，也可以完全自定義：</p>
+        <p>→ 調整分析風格和重點</p>
+        <p>→ 加入你自己的交易規則</p>
+        <p>→ 設定偏好的回覆語言</p>
+        <p>→ 定義特殊的復盤角度</p>
+      </div>
+      <p class="text-gray-600 text-xs mt-3">Prompt 持久存儲，重啟不丟失</p>
+    </div>
+  </div>
+  <div class="card reveal" style="border-color:rgba(168,85,247,.15)">
+    <h4 class="font-mono text-[.7rem] text-purple-400 tracking-widest mb-4">AI 復盤功能一覽</h4>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+      <div class="p-4 rounded-lg" style="background:rgba(168,85,247,.05)">
+        <p class="text-purple-300 font-bold mb-2">分析目前盤勢</p>
+        <p class="text-gray-500 text-xs">一鍵讓 AI 結合即時數據 + 你的信號統計，給出做多 / 做空 / 觀望建議</p>
+      </div>
+      <div class="p-4 rounded-lg" style="background:rgba(168,85,247,.05)">
+        <p class="text-purple-300 font-bold mb-2">自由對話提問</p>
+        <p class="text-gray-500 text-xs">「目前適合做多科技股嗎？」「我的背離信號為什麼準確率低？」AI 結合上下文回答</p>
+      </div>
+      <div class="p-4 rounded-lg" style="background:rgba(168,85,247,.05)">
+        <p class="text-purple-300 font-bold mb-2">交易復盤分析</p>
+        <p class="text-gray-500 text-xs">平倉後自動觸發：做對了什麼、可以改進什麼、下次建議、風險提醒</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ SECTION 12: CLOUD SYNC ============ -->
+<section class="section" id="sec-cloud">
+  <div class="reveal">
+    <span class="sec-num">12 — CLOUD DEPLOYMENT</span>
+    <h2 class="sec-title text-white">雲端部署 + Google Sheets 同步</h2>
+    <p class="sec-sub mb-10">本地和雲端雙重部署，數據自動同步到 Google Sheets，手機隨時查看。</p>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div class="card box-glow-cyan reveal">
+      <p class="text-2xl mb-3">💻</p>
+      <h4 class="text-white font-bold mb-2">本地部署</h4>
+      <div class="text-gray-400 text-sm space-y-1">
+        <p>→ 數據永久保留在硬碟</p>
+        <p>→ Dashboard 直接設定 AI</p>
+        <p>→ 速度最快，無延遲</p>
+        <p>→ 免費，無任何限制</p>
+      </div>
+    </div>
+    <div class="card box-glow-green reveal">
+      <p class="text-2xl mb-3">☁️</p>
+      <h4 class="text-white font-bold mb-2">雲端部署 (Render)</h4>
+      <div class="text-gray-400 text-sm space-y-1">
+        <p>→ 手機隨時隨地看盤</p>
+        <p>→ 環境變數設定 API Key</p>
+        <p>→ PORT 自動適配</p>
+        <p>→ 免費方案可用</p>
+      </div>
+    </div>
+    <div class="card box-glow-gold reveal">
+      <p class="text-2xl mb-3">📊</p>
+      <h4 class="text-white font-bold mb-2">Google Sheets 同步</h4>
+      <div class="text-gray-400 text-sm space-y-1">
+        <p>→ 信號記錄自動寫入</p>
+        <p>→ AI 復盤自動存檔</p>
+        <p>→ 準確率統計每日更新</p>
+        <p>→ 雲端重啟也不丟數據</p>
+      </div>
+    </div>
+  </div>
+  <div class="card reveal mt-6" style="border-color:rgba(255,215,0,.15)">
+    <h4 class="font-mono text-[.7rem] text-yellow-400 tracking-widest mb-3">掃描頻率可調</h4>
+    <p class="text-gray-400 text-sm">Dashboard 即時切換掃描間隔：<span class="font-mono text-cyan-300 mx-1">5s</span>/<span class="font-mono text-cyan-300 mx-1">10s</span>/<span class="font-mono text-cyan-300 mx-1">15s</span>/<span class="font-mono text-cyan-300 mx-1">30s</span> — 選了立刻生效，無需重啟。免費數據源建議 15-30 秒，付費即時數據可用 5 秒。</p>
+  </div>
+</section>
+<!-- ============ SECTION 13: MARKET SEGREGATION ============ -->
 <section class="section" id="sec-market">
   <div class="reveal">
-    <span class="sec-num">10 — MARKET SEGREGATION</span>
+    <span class="sec-num">13 — MARKET SEGREGATION</span>
     <h2 class="sec-title text-white">台美雙市場區隔</h2>
     <p class="sec-sub mb-10">同時持有台股和美股倉位，警報和判斷邏輯完全獨立。</p>
   </div>
@@ -508,9 +666,9 @@ background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240
 <!-- ============ SECTION 11: DASHBOARD ============ -->
 <section class="section" id="sec-dashboard">
   <div class="reveal">
-    <span class="sec-num">11 — LIVE DASHBOARD</span>
+    <span class="sec-num">14 — LIVE DASHBOARD</span>
     <h2 class="sec-title text-white">即時監控面板</h2>
-    <p class="sec-sub mb-10">WebSocket 即時推播，30 秒自動掃描。所有數據一頁掌握。</p>
+    <p class="sec-sub mb-10">WebSocket 即時推播，5-30 秒可調掃描。所有數據一頁掌握。</p>
   </div>
   <div class="card box-glow-cyan reveal">
     <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 text-center">
@@ -526,16 +684,18 @@ background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240
       <div class="p-3 rounded-lg" style="background:rgba(0,240,255,.04)"><p class="font-mono text-[.6rem] text-cyan-400 tracking-wider">POSITIONS</p><p class="text-white text-xs mt-1">持倉追蹤</p></div>
       <div class="p-3 rounded-lg" style="background:rgba(255,56,96,.04)"><p class="font-mono text-[.6rem] text-red-400 tracking-wider">SELL SIGNALS</p><p class="text-white text-xs mt-1">賣出訊號</p></div>
       <div class="p-3 rounded-lg" style="background:rgba(255,215,0,.04)"><p class="font-mono text-[.6rem] text-yellow-400 tracking-wider">DAILY REPORT</p><p class="text-white text-xs mt-1">盤前日報</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(0,255,136,.04)"><p class="font-mono text-[.6rem] text-green-400 tracking-wider">SIGNAL STATS</p><p class="text-white text-xs mt-1">信號準確率</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(168,85,247,.06)"><p class="font-mono text-[.6rem] text-purple-400 tracking-wider">AI COACH</p><p class="text-white text-xs mt-1">AI 復盤</p></div>
     </div>
     <div class="flex flex-wrap gap-3 mt-6 pt-4 border-t border-gray-800 text-[.7rem] text-gray-500">
-      <span>Socket.IO 即時推播</span><span>·</span><span>30 秒掃描週期</span><span>·</span><span>桌面通知</span><span>·</span><span>音效警報</span><span>·</span><span>深色主題</span><span>·</span><span>ECharts 圖表</span>
+      <span>Socket.IO 即時推播</span><span>·</span><span>5-30 秒可調掃描</span><span>·</span><span>桌面通知</span><span>·</span><span>音效警報</span><span>·</span><span>深色主題</span><span>·</span><span>ECharts 圖表</span><span>·</span><span>Google Sheets 同步</span>
     </div>
   </div>
 </section>
 <!-- ============ SECTION 12: ROBUSTNESS ============ -->
 <section class="section" id="sec-robust">
   <div class="reveal">
-    <span class="sec-num">12 — SYSTEM ROBUSTNESS</span>
+    <span class="sec-num">15 — SYSTEM ROBUSTNESS</span>
     <h2 class="sec-title text-white">系統穩健性</h2>
   </div>
   <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mt-8">
@@ -615,6 +775,7 @@ pvChart.setOption({
 window.addEventListener('resize',()=>{vixChart.resize();pvChart.resize()});
 ScrollTrigger.addEventListener('refresh',()=>{vixChart.resize();pvChart.resize()});
 </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
