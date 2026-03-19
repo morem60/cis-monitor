@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CIS Hunter Monitor — 系統功能完整介紹</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--cyan:#00f0ff;--green:#00ff88;--red:#ff3860;--gold:#ffd700;--purple:#a855f7;--bg:#060a14;--card:#0c1220;--border:#1a2540}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC','JetBrains Mono',sans-serif;background:var(--bg)}
+::selection{background:var(--cyan);color:#000}
+
+/* Progress bar */
+#progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--green));z-index:9999;transition:width .15s}
+
+/* Scanline overlay */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,.012) 2px,rgba(0,240,255,.012) 4px)}
+
+/* Section base */
+.section{padding:6rem 1.5rem;max-width:1200px;margin:0 auto}
+@media(max-width:768px){.section{padding:3rem 1rem}}
+
+/* Glow effects */
+.glow-cyan{text-shadow:0 0 20px rgba(0,240,255,.5),0 0 40px rgba(0,240,255,.2)}
+.glow-green{text-shadow:0 0 20px rgba(0,255,136,.5)}
+.glow-gold{text-shadow:0 0 20px rgba(255,215,0,.5)}
+.glow-red{text-shadow:0 0 20px rgba(255,56,96,.5)}
+.box-glow-cyan{box-shadow:0 0 20px rgba(0,240,255,.15),inset 0 0 20px rgba(0,240,255,.05)}
+.box-glow-green{box-shadow:0 0 20px rgba(0,255,136,.15),inset 0 0 20px rgba(0,255,136,.05)}
+.box-glow-gold{box-shadow:0 0 20px rgba(255,215,0,.12),inset 0 0 15px rgba(255,215,0,.04)}
+.box-glow-red{box-shadow:0 0 20px rgba(255,56,96,.15),inset 0 0 20px rgba(255,56,96,.05)}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,240,255,.4),transparent)}
+
+/* Tags */
+.tag{display:inline-block;padding:2px 10px;border-radius:4px;font-size:.7rem;font-family:'JetBrains Mono',monospace;letter-spacing:.05em;text-transform:uppercase}
+.tag-critical{background:rgba(255,56,96,.15);color:var(--red);border:1px solid rgba(255,56,96,.3)}
+.tag-warning{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.25)}
+.tag-info{background:rgba(0,240,255,.1);color:var(--cyan);border:1px solid rgba(0,240,255,.25)}
+
+/* Section title */
+.sec-num{font-family:'Orbitron',monospace;font-size:.85rem;color:var(--cyan);letter-spacing:.2em;margin-bottom:.5rem;display:block}
+.sec-title{font-size:2rem;font-weight:900;letter-spacing:.02em;line-height:1.3;margin-bottom:.5rem}
+@media(max-width:768px){.sec-title{font-size:1.4rem}}
+.sec-sub{color:#8892a8;font-size:.95rem;line-height:1.7;max-width:700px}
+
+/* Table */
+.data-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.data-table th{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--cyan);text-transform:uppercase;letter-spacing:.12em;padding:.75rem .5rem;border-bottom:1px solid var(--border);text-align:left}
+.data-table td{padding:.65rem .5rem;border-bottom:1px solid rgba(26,37,64,.5);vertical-align:top}
+.data-table tr:hover td{background:rgba(0,240,255,.03)}
+
+/* Timeline */
+.timeline-line{position:absolute;left:24px;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--cyan),var(--green),var(--gold))}
+.timeline-dot{width:12px;height:12px;border-radius:50%;border:2px solid;position:absolute;left:19px;background:var(--bg)}
+
+/* Hero typing cursor */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.cursor{display:inline-block;width:2px;height:1em;background:var(--cyan);margin-left:4px;animation:blink 1s infinite;vertical-align:text-bottom}
+
+/* Reveal anim base */
+.reveal{opacity:0;transform:translateY(30px)}
+.reveal-left{opacity:0;transform:translateX(-40px)}
+.reveal-right{opacity:0;transform:translateX(40px)}
+
+/* Pulse ring */
+@keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(0,240,255,.4)}70%{box-shadow:0 0 0 12px rgba(0,240,255,0)}100%{box-shadow:0 0 0 0 rgba(0,240,255,0)}}
+.pulse{animation:pulse-ring 2s infinite}
+
+/* Grid noise */
+.noise-bg{background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E")}
+
+/* Stage arrow */
+.stage-arrow{width:40px;height:2px;background:linear-gradient(90deg,var(--cyan),var(--green));position:relative;display:inline-block;vertical-align:middle;margin:0 8px}
+.stage-arrow::after{content:'';position:absolute;right:-1px;top:-4px;border:5px solid transparent;border-left:6px solid var(--green)}
+
+/* Axis card */
+.axis-card{background:linear-gradient(135deg,rgba(12,18,32,.9),rgba(15,25,50,.9));border:1px solid var(--border);border-radius:10px;padding:1.25rem;position:relative;transition:border-color .3s,box-shadow .3s}
+.axis-card:hover{border-color:rgba(0,240,255,.3);box-shadow:0 0 25px rgba(0,240,255,.08)}
+.axis-num{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:rgba(0,240,255,.12);position:absolute;top:8px;right:14px}
+</style>
+</head>
+<body class="bg-[#060a14] text-gray-200 overflow-x-hidden">
+<!-- PROGRESS BAR -->
+<div id="progress" style="width:0%"></div>
+
+<!-- ============ HERO ============ -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden noise-bg" id="hero">
+  <div class="absolute inset-0" style="background:radial-gradient(ellipse at 50% 30%,rgba(0,240,255,.06) 0%,transparent 60%),radial-gradient(ellipse at 80% 70%,rgba(0,255,136,.04) 0%,transparent 50%)"></div>
+  <div class="absolute top-[15%] left-[10%] w-[300px] h-[300px] rounded-full opacity-[.03]" style="background:var(--cyan);filter:blur(120px)"></div>
+  <div class="absolute bottom-[20%] right-[15%] w-[200px] h-[200px] rounded-full opacity-[.04]" style="background:var(--green);filter:blur(100px)"></div>
+  <div class="text-center px-6 relative z-10">
+    <p class="font-mono text-[.7rem] tracking-[.35em] text-cyan-400 mb-6 opacity-80" id="hero-tag">REAL-TIME MARKET INTELLIGENCE</p>
+    <h1 class="font-black text-5xl md:text-7xl lg:text-8xl leading-[1.05] mb-4" style="font-family:'Orbitron',monospace">
+      <span class="text-white">CIS</span> <span style="color:var(--cyan)" class="glow-cyan">HUNTER</span>
+    </h1>
+    <h2 class="text-xl md:text-2xl font-light tracking-widest text-gray-400 mb-8">M O N I T O R</h2>
+    <p class="text-base md:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed mb-10">
+      基於日本傳奇操盤手 <span class="text-white font-bold">cis</span> 交易哲學的<br class="hidden md:inline">獵人型全市場當沖執行監控系統<span class="cursor"></span>
+    </p>
+    <div class="flex flex-wrap justify-center gap-3 text-[.7rem] font-mono tracking-wider">
+      <span class="tag tag-info">美股 + 台股</span>
+      <span class="tag tag-info">五軸線分析</span>
+      <span class="tag tag-info">三重確認</span>
+      <span class="tag tag-info">八大賣出訊號</span>
+      <span class="tag tag-info">即時 WebSocket</span>
+    </div>
+    <div class="mt-16 animate-bounce">
+      <svg class="w-5 h-5 mx-auto text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+    </div>
+  </div>
+</section>
+<!-- ============ SECTION 1: OVERVIEW + IRON RULES ============ -->
+<section class="section" id="sec-overview">
+  <div class="reveal">
+    <span class="sec-num">01 — CORE PHILOSOPHY</span>
+    <h2 class="sec-title" style="color:var(--gold)">CIS 五大鐵律<span class="glow-gold">。</span></h2>
+    <p class="sec-sub mb-10">這不是建議，是寫進系統裡的硬性規則。違反任何一條，系統會即時發出警報。</p>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-8">
+    <div class="card box-glow-gold reveal" style="border-color:rgba(255,215,0,.2)">
+      <div class="font-mono text-[.65rem] text-yellow-500 tracking-widest mb-3">RULE 01</div>
+      <h3 class="text-white font-bold text-lg mb-2">順勢操作</h3>
+      <p class="text-gray-400 text-sm leading-relaxed">只買正在上漲的股票，絕不回檔買進。趨勢是你唯一的朋友。</p>
+    </div>
+    <div class="card box-glow-red reveal" style="border-color:rgba(255,56,96,.2)">
+      <div class="font-mono text-[.65rem] text-red-400 tracking-widest mb-3">RULE 02</div>
+      <h3 class="text-white font-bold text-lg mb-2">絕不攤平</h3>
+      <p class="text-gray-400 text-sm leading-relaxed">買進一旦下跌立刻認賠。攤平是最差勁的技巧。<span class="tag tag-critical ml-1">系統硬擋</span></p>
+    </div>
+    <div class="card box-glow-green reveal" style="border-color:rgba(0,255,136,.15)">
+      <div class="font-mono text-[.65rem] text-green-400 tracking-widest mb-3">RULE 03</div>
+      <h3 class="text-white font-bold text-lg mb-2">盈虧比 &gt; 勝率</h3>
+      <p class="text-gray-400 text-sm leading-relaxed">看錯小賠，看對大賺。三成勝率即可致富。</p>
+    </div>
+    <div class="card box-glow-cyan reveal" style="border-color:rgba(0,240,255,.15)">
+      <div class="font-mono text-[.65rem] text-cyan-400 tracking-widest mb-3">RULE 04</div>
+      <h3 class="text-white font-bold text-lg mb-2">市場永遠是對的</h3>
+      <p class="text-gray-400 text-sm leading-relaxed">假說被否定就丟掉，零猶豫。不跟市場爭論。</p>
+    </div>
+    <div class="card reveal" style="border-color:rgba(168,85,247,.2);box-shadow:0 0 20px rgba(168,85,247,.12)">
+      <div class="font-mono text-[.65rem] text-purple-400 tracking-widest mb-3">RULE 05</div>
+      <h3 class="text-white font-bold text-lg mb-2">大勝後重置</h3>
+      <p class="text-gray-400 text-sm leading-relaxed">大勝後的你已不是正常狀態。冷卻協議自動啟動。</p>
+    </div>
+  </div>
+</section>
+<!-- ============ SECTION 2: THREE MODELS ============ -->
+<section class="section" id="sec-models">
+  <div class="reveal">
+    <span class="sec-num">02 — TRADING MODELS</span>
+    <h2 class="sec-title text-white">三大交易模型</h2>
+    <p class="sec-sub mb-10">一鍵切換，系統自動調整所有參數 — VIX 區間、部位比例、背離配對、數據源。</p>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <!-- Model 1 -->
+    <div class="card box-glow-cyan reveal">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="w-3 h-3 rounded-full bg-cyan-400 pulse"></span>
+        <span class="font-mono text-[.65rem] text-cyan-400 tracking-widest">US_ALL</span>
+      </div>
+      <h3 class="text-xl font-bold text-white mb-1">獵人版 CIS 體系</h3>
+      <p class="text-gray-500 text-sm mb-5">美股全市場當沖</p>
+      <table class="data-table">
+        <tr><td class="text-gray-500 w-[35%]">波動率基準</td><td class="text-white">VIX [14, 20, 30, 40]</td></tr>
+        <tr><td class="text-gray-500">部位比例</td><td><span class="text-cyan-300">17.5%</span> → <span class="text-green-300">45%</span> → <span class="text-yellow-300">85%</span></td></tr>
+        <tr><td class="text-gray-500">背離配對</td><td class="text-white">5 組</td></tr>
+        <tr><td class="text-gray-500">板塊追蹤</td><td class="text-white">15 檔 ETF</td></tr>
+        <tr><td class="text-gray-500">特殊功能</td><td class="text-gray-300">財報連帶效應鏈、第二隻泥鰍假說</td></tr>
+      </table>
+    </div>
+    <!-- Model 2 -->
+    <div class="card box-glow-green reveal">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="w-3 h-3 rounded-full bg-green-400 pulse"></span>
+        <span class="font-mono text-[.65rem] text-green-400 tracking-widest">TW</span>
+      </div>
+      <h3 class="text-xl font-bold text-white mb-1">台股當沖 CIS</h3>
+      <p class="text-gray-500 text-sm mb-5">台股市場即時五軸線</p>
+      <table class="data-table">
+        <tr><td class="text-gray-500 w-[35%]">即時數據</td><td class="text-white">Fugle WebSocket</td></tr>
+        <tr><td class="text-gray-500">部位比例</td><td><span class="text-cyan-300">25%</span> → <span class="text-green-300">55%</span> → <span class="text-yellow-300">90%</span></td></tr>
+        <tr><td class="text-gray-500">類股分析</td><td class="text-white">13 大類股輪動</td></tr>
+        <tr><td class="text-gray-500">五軸線</td><td class="text-gray-300">夜盤 / ADR / 費半 / 匯率 / 類股</td></tr>
+        <tr><td class="text-gray-500">特殊功能</td><td class="text-gray-300">期貨結算日、MSCI 調整、尾盤強制出場</td></tr>
+      </table>
+    </div>
+    <!-- Model 3 -->
+    <div class="card reveal" style="border-color:rgba(168,85,247,.2);box-shadow:0 0 20px rgba(168,85,247,.12),inset 0 0 20px rgba(168,85,247,.04)">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="w-3 h-3 rounded-full bg-purple-400 pulse"></span>
+        <span class="font-mono text-[.65rem] text-purple-400 tracking-widest">US_TECH</span>
+      </div>
+      <h3 class="text-xl font-bold text-white mb-1">美股科技股 CIS</h3>
+      <p class="text-gray-500 text-sm mb-5">MAG7 + 半導體專精</p>
+      <table class="data-table">
+        <tr><td class="text-gray-500 w-[35%]">波動率基準</td><td class="text-white">VXN [18, 25, 35, 50]</td></tr>
+        <tr><td class="text-gray-500">部位比例</td><td><span class="text-cyan-300">25%</span> → <span class="text-green-300">55%</span> → <span class="text-yellow-300">90%</span></td></tr>
+        <tr><td class="text-gray-500">背離配對</td><td class="text-white">6 組科技專屬</td></tr>
+        <tr><td class="text-gray-500">目標標的</td><td class="text-gray-300">NVDA, AAPL, MSFT, AMZN, META, GOOG, AVGO</td></tr>
+        <tr><td class="text-gray-500">特殊功能</td><td class="text-gray-300">VXN 專用區間、冰山訂單偵測</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+<!-- ============ SECTION 3: DATA SOURCES ============ -->
+<section class="section" id="sec-data">
+  <div class="reveal">
+    <span class="sec-num">03 — DATA ARCHITECTURE</span>
+    <h2 class="sec-title text-white">數據源架構</h2>
+    <p class="sec-sub mb-10">多層後備機制，確保數據不中斷。</p>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- US Data -->
+    <div class="card box-glow-cyan reveal">
+      <h3 class="font-mono text-sm text-cyan-400 tracking-widest mb-4">🇺🇸 美股數據源</h3>
+      <div class="space-y-3 text-sm">
+        <div class="flex items-center gap-3"><span class="tag tag-info">優先</span><span class="text-white font-medium">Alpaca API</span><span class="text-gray-500">— 即時快照，股票 + ETF</span></div>
+        <div class="flex items-center gap-1 text-gray-600 pl-8">↓ 失敗後備</div>
+        <div class="flex items-center gap-3"><span class="tag" style="background:rgba(255,255,255,.05);color:#8892a8;border:1px solid rgba(255,255,255,.1)">後備</span><span class="text-white font-medium">yfinance</span><span class="text-gray-500">— 期貨、指數、延遲 ~15 分鐘</span></div>
+      </div>
+      <div class="mt-5 pt-4 border-t border-gray-800">
+        <p class="text-[.7rem] font-mono text-gray-500 tracking-wider mb-2">宏觀追蹤 — 10 大指標</p>
+        <div class="flex flex-wrap gap-2">
+          <span class="tag tag-info">ES</span><span class="tag tag-info">NQ</span><span class="tag tag-info">YM</span><span class="tag tag-info">RTY</span><span class="tag tag-info">VIX</span><span class="tag tag-info">TNX</span><span class="tag tag-info">TLT</span><span class="tag tag-info">DXY</span><span class="tag tag-info">GLD</span><span class="tag tag-info">USO</span>
+        </div>
+      </div>
+      <div class="mt-4 pt-3 border-t border-gray-800">
+        <p class="text-[.7rem] font-mono text-gray-500 tracking-wider mb-2">板塊追蹤 — 15 檔 ETF</p>
+        <div class="flex flex-wrap gap-1.5 text-[.65rem]">
+          <span class="px-2 py-0.5 rounded bg-cyan-900/30 text-cyan-300">XLK</span><span class="px-2 py-0.5 rounded bg-cyan-900/30 text-cyan-300">SMH</span><span class="px-2 py-0.5 rounded bg-cyan-900/30 text-cyan-300">XLC</span><span class="px-2 py-0.5 rounded bg-green-900/30 text-green-300">XLY</span><span class="px-2 py-0.5 rounded bg-green-900/30 text-green-300">XLI</span><span class="px-2 py-0.5 rounded bg-green-900/30 text-green-300">XLF</span><span class="px-2 py-0.5 rounded bg-green-900/30 text-green-300">XLE</span><span class="px-2 py-0.5 rounded bg-yellow-900/30 text-yellow-300">XLB</span><span class="px-2 py-0.5 rounded bg-yellow-900/30 text-yellow-300">XLV</span><span class="px-2 py-0.5 rounded bg-yellow-900/30 text-yellow-300">XLP</span><span class="px-2 py-0.5 rounded bg-yellow-900/30 text-yellow-300">XLU</span><span class="px-2 py-0.5 rounded bg-yellow-900/30 text-yellow-300">XLRE</span><span class="px-2 py-0.5 rounded bg-purple-900/30 text-purple-300">ARKK</span><span class="px-2 py-0.5 rounded bg-purple-900/30 text-purple-300">IWM</span><span class="px-2 py-0.5 rounded bg-purple-900/30 text-purple-300">XBI</span>
+        </div>
+      </div>
+    </div>
+    <!-- TW Data -->
+    <div class="card box-glow-green reveal">
+      <h3 class="font-mono text-sm text-green-400 tracking-widest mb-4">🇹🇼 台股數據源 — 四層後備</h3>
+      <div class="space-y-3 text-sm">
+        <div class="flex items-center gap-3"><span class="tag" style="background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.3)">L1 即時</span><span class="text-white font-medium">Fugle WebSocket</span><span class="text-gray-500">— 逐筆成交推播</span></div>
+        <div class="flex items-center gap-1 text-gray-600 pl-8">↓</div>
+        <div class="flex items-center gap-3"><span class="tag" style="background:rgba(0,255,136,.08);color:rgba(0,255,136,.7);border:1px solid rgba(0,255,136,.2)">L2 盤中</span><span class="text-white font-medium">Fugle REST API</span><span class="text-gray-500">— 55 req/min，快取 15 秒</span></div>
+        <div class="flex items-center gap-1 text-gray-600 pl-8">↓</div>
+        <div class="flex items-center gap-3"><span class="tag" style="background:rgba(255,255,255,.05);color:#8892a8;border:1px solid rgba(255,255,255,.1)">L3 日線</span><span class="text-white font-medium">FinMind API</span><span class="text-gray-500">— 免費 300 req/hr，法人 + 融資融券</span></div>
+        <div class="flex items-center gap-1 text-gray-600 pl-8">↓</div>
+        <div class="flex items-center gap-3"><span class="tag" style="background:rgba(255,255,255,.03);color:#666;border:1px solid rgba(255,255,255,.06)">L4 後備</span><span class="text-white font-medium">yfinance .TW</span><span class="text-gray-500">— 延遲數據</span></div>
+      </div>
+      <div class="mt-5 pt-4 border-t border-gray-800">
+        <p class="text-[.7rem] font-mono text-gray-500 tracking-wider mb-2">台股特有數據</p>
+        <div class="flex flex-wrap gap-2 text-[.65rem]">
+          <span class="px-2 py-0.5 rounded bg-green-900/30 text-green-300">加權指數</span><span class="px-2 py-0.5 rounded bg-green-900/30 text-green-300">台指期夜盤</span><span class="px-2 py-0.5 rounded bg-green-900/30 text-green-300">台積電 ADR</span><span class="px-2 py-0.5 rounded bg-green-900/30 text-green-300">USD/TWD 匯率</span><span class="px-2 py-0.5 rounded bg-green-900/30 text-green-300">三大法人</span><span class="px-2 py-0.5 rounded bg-green-900/30 text-green-300">融資融券</span><span class="px-2 py-0.5 rounded bg-green-900/30 text-green-300">13 大類股</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ SECTION 4: FIVE-AXIS SYSTEM ============ -->
+<section class="section" id="sec-axes">
+  <div class="reveal">
+    <span class="sec-num">04 — FIVE-AXIS ANALYSIS</span>
+    <h2 class="sec-title text-white">五軸線分析系統</h2>
+    <p class="sec-sub mb-10">從宏觀到個股，五層漏斗過濾。美股和台股各有專屬五軸線。</p>
+  </div>
+
+  <!-- US Five Axes -->
+  <h3 class="font-mono text-sm text-cyan-400 tracking-widest mb-5 reveal">🇺🇸 美股五軸線</h3>
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-12">
+    <div class="axis-card reveal"><div class="axis-num">1</div><p class="text-cyan-400 font-bold text-sm mb-1">宏觀環境分類</p><p class="text-gray-400 text-xs leading-relaxed">Risk-On / Risk-Off / Rotation / Divergence / Confusion — 10 大指標交叉判定</p></div>
+    <div class="axis-card reveal"><div class="axis-num">2</div><p class="text-cyan-400 font-bold text-sm mb-1">板塊強弱排序</p><p class="text-gray-400 text-xs leading-relaxed">15 檔 ETF 加權排名，前 3 做多候選，後 3 做空候選</p></div>
+    <div class="axis-card reveal"><div class="axis-num">3</div><p class="text-cyan-400 font-bold text-sm mb-1">背離偵測雷達</p><p class="text-gray-400 text-xs leading-relaxed">5+ 組配對即時監控，同向/反向/比例三種偵測模式</p></div>
+    <div class="axis-card reveal"><div class="axis-num">4</div><p class="text-cyan-400 font-bold text-sm mb-1">個股獵物篩選</p><p class="text-gray-400 text-xs leading-relaxed">異常偵測 + 假說建構（四道品質關卡驗證）</p></div>
+    <div class="axis-card reveal"><div class="axis-num">5</div><p class="text-cyan-400 font-bold text-sm mb-1">量能雷達</p><p class="text-gray-400 text-xs leading-relaxed">掃描量比 ≥ 3x 異常標的，偵測機構進場訊號</p></div>
+  </div>
+
+  <!-- TW Five Axes -->
+  <h3 class="font-mono text-sm text-green-400 tracking-widest mb-5 reveal">🇹🇼 台股五軸線</h3>
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+    <div class="axis-card reveal" style="border-color:rgba(0,255,136,.1)"><div class="axis-num" style="color:rgba(0,255,136,.12)">1</div><p class="text-green-400 font-bold text-sm mb-1">夜盤 vs 開盤預期差</p><p class="text-gray-400 text-xs leading-relaxed">台指期夜盤收盤與 NQ 走勢比對，判斷隔日開盤方向</p></div>
+    <div class="axis-card reveal" style="border-color:rgba(0,255,136,.1)"><div class="axis-num" style="color:rgba(0,255,136,.12)">2</div><p class="text-green-400 font-bold text-sm mb-1">台積電 ADR 折溢價</p><p class="text-gray-400 text-xs leading-relaxed">TSM ADR 換算台幣 vs 2330 現股，折溢價 &gt; 1% 觸發訊號</p></div>
+    <div class="axis-card reveal" style="border-color:rgba(0,255,136,.1)"><div class="axis-num" style="color:rgba(0,255,136,.12)">3</div><p class="text-green-400 font-bold text-sm mb-1">費半 vs 台股電子</p><p class="text-gray-400 text-xs leading-relaxed">^SOX vs 七檔權值股加權籃子（台積電 40%、聯發科 15%...）</p></div>
+    <div class="axis-card reveal" style="border-color:rgba(0,255,136,.1)"><div class="axis-num" style="color:rgba(0,255,136,.12)">4</div><p class="text-green-400 font-bold text-sm mb-1">台幣匯率 vs 加權</p><p class="text-gray-400 text-xs leading-relaxed">USD/TWD + 外資買賣超 + TAIEX 三角驗證</p></div>
+    <div class="axis-card reveal" style="border-color:rgba(0,255,136,.1)"><div class="axis-num" style="color:rgba(0,255,136,.12)">5</div><p class="text-green-400 font-bold text-sm mb-1">類股輪動 / 泥鰍</p><p class="text-gray-400 text-xs leading-relaxed">13 大類股輪動分析，找「第二隻泥鰍」— 領漲股連帶效應鏈</p></div>
+  </div>
+</section>
+<!-- ============ SECTION 5: POSITION MANAGEMENT ============ -->
+<section class="section" id="sec-position">
+  <div class="reveal">
+    <span class="sec-num">05 — POSITION MANAGEMENT</span>
+    <h2 class="sec-title text-white">三段式倉位管理</h2>
+    <p class="sec-sub mb-10">每次升級都需要兩個獨立訊號同時確認。不猜測，不提前加碼。</p>
+  </div>
+
+  <!-- Stage Flow -->
+  <div class="card box-glow-cyan mb-8 reveal">
+    <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-0 py-4">
+      <div class="text-center">
+        <div class="text-3xl font-black text-cyan-400" style="font-family:'Orbitron',monospace">15-25%</div>
+        <div class="text-sm text-gray-400 mt-1">試探倉 <span class="font-mono text-cyan-500 text-xs">PROBE</span></div>
+        <div class="text-[.65rem] text-gray-600 mt-1">假說驗證中</div>
+      </div>
+      <div class="stage-arrow hidden md:inline-block"></div>
+      <div class="text-gray-600 text-xs md:hidden">▼ 量價確認 + 板塊配合</div>
+      <div class="text-center">
+        <div class="text-3xl font-black text-green-400" style="font-family:'Orbitron',monospace">45-55%</div>
+        <div class="text-sm text-gray-400 mt-1">確認倉 <span class="font-mono text-green-500 text-xs">CONFIRM</span></div>
+        <div class="text-[.65rem] text-gray-600 mt-1">雙重訊號已驗證</div>
+      </div>
+      <div class="stage-arrow hidden md:inline-block"></div>
+      <div class="text-gray-600 text-xs md:hidden">▼ 族群輪動 + VIX 配合</div>
+      <div class="text-center">
+        <div class="text-3xl font-black text-yellow-400" style="font-family:'Orbitron',monospace">85-90%</div>
+        <div class="text-sm text-gray-400 mt-1">主力倉 <span class="font-mono text-yellow-500 text-xs">MAIN</span></div>
+        <div class="text-[.65rem] text-gray-600 mt-1">全面展開</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIX Regimes Chart -->
+  <div class="card reveal mb-6">
+    <h4 class="font-mono text-[.7rem] text-cyan-400 tracking-widest mb-4">VIX 五級區間 — 動態部位上限</h4>
+    <div id="chart-vix" style="width:100%;height:220px"></div>
+  </div>
+
+  <!-- Dual Signal -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="card reveal">
+      <p class="font-mono text-[.65rem] text-cyan-400 tracking-widest mb-3">PROBE → CONFIRM 升級條件</p>
+      <div class="space-y-2 text-sm">
+        <div class="flex gap-2"><span class="text-green-400">Signal 1</span><span class="text-gray-300">量價得分 ≥ 5.0/10 + 股價突破</span></div>
+        <div class="flex gap-2"><span class="text-green-400">Signal 2</span><span class="text-gray-300">板塊 ETF 轉強 或 宏觀環境配合</span></div>
+      </div>
+      <p class="text-gray-600 text-xs mt-3">兩者都要通過才升級</p>
+    </div>
+    <div class="card reveal">
+      <p class="font-mono text-[.65rem] text-yellow-400 tracking-widest mb-3">CONFIRM → MAIN 升級條件</p>
+      <div class="space-y-2 text-sm">
+        <div class="flex gap-2"><span class="text-yellow-400">Signal 1</span><span class="text-gray-300">族群輪動全面展開（排名前 1/3）</span></div>
+        <div class="flex gap-2"><span class="text-yellow-400">Signal 2</span><span class="text-gray-300">VIX 下降 + 殖利率方向配合</span></div>
+      </div>
+      <p class="text-gray-600 text-xs mt-3">兩者都要通過才升級</p>
+    </div>
+  </div>
+</section>
+<!-- ============ SECTION 6: TRIPLE CONFIRMATION ============ -->
+<section class="section" id="sec-confirm">
+  <div class="reveal">
+    <span class="sec-num">06 — TRIPLE CONFIRMATION</span>
+    <h2 class="sec-title text-white">三重確認系統</h2>
+    <p class="sec-sub mb-10">宏觀 × 量價 × 板塊，三個維度交叉確認。量價同向是最低門檻。</p>
+  </div>
+  <div class="card box-glow-cyan reveal mb-8">
+    <table class="data-table">
+      <thead>
+        <tr><th>等級</th><th>宏觀</th><th>量價</th><th>板塊</th><th>部位比例</th><th>建議</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="font-bold text-green-400">Triple</span></td><td class="text-green-400">同向</td><td class="text-green-400">同向</td><td class="text-green-400">同向</td><td class="text-white font-mono">100%</td><td class="text-gray-300">正常部位，可按三段式加碼</td></tr>
+        <tr><td><span class="font-bold text-yellow-400">Double</span></td><td class="text-green-400">同向</td><td class="text-green-400">同向</td><td class="text-red-400">逆向</td><td class="text-white font-mono">70%</td><td class="text-gray-300">個股有獨立催化劑可做</td></tr>
+        <tr><td><span class="font-bold text-orange-400">Single</span></td><td class="text-red-400">逆向</td><td class="text-green-400">同向</td><td class="text-red-400">逆向</td><td class="text-white font-mono">40%</td><td class="text-gray-300">停損更緊</td></tr>
+        <tr><td><span class="font-bold text-red-400">Zero</span></td><td>任何</td><td class="text-red-400">逆向</td><td>任何</td><td class="text-white font-mono">0%</td><td class="text-red-300">不建議進場</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card reveal">
+    <h4 class="font-mono text-[.7rem] text-cyan-400 tracking-widest mb-4">量價多因子評分系統 (0-10 分)</h4>
+    <div id="chart-pv" style="width:100%;height:250px"></div>
+  </div>
+</section>
+<!-- ============ SECTION 7: 8 SELL SIGNALS ============ -->
+<section class="section" id="sec-sell">
+  <div class="reveal">
+    <span class="sec-num">07 — SELL SIGNALS</span>
+    <h2 class="sec-title" style="color:var(--red)">八大賣出訊號<span class="glow-red">。</span></h2>
+    <p class="sec-sub mb-10">系統持續監控每一個持倉，任何訊號觸發都會即時通知。</p>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="card box-glow-red reveal"><div class="flex items-center gap-2 mb-2"><span class="tag tag-critical">critical</span><span class="text-white font-bold">1. 假說否定</span></div><p class="text-gray-400 text-sm">驗證條件未滿足，或 5 日動能反轉 &gt; 2% 且放量。鐵律 4：零猶豫。</p></div>
+    <div class="card box-glow-red reveal"><div class="flex items-center gap-2 mb-2"><span class="tag tag-critical">critical</span><span class="text-white font-bold">2. 力量消失 / 反轉</span></div><p class="text-gray-400 text-sm">偵測到フォース（穩定節奏買盤/賣盤）方向反轉。力量消失就走。</p></div>
+    <div class="card reveal"><div class="flex items-center gap-2 mb-2"><span class="tag tag-warning">warning</span><span class="text-white font-bold">3. 個股弱於板塊</span></div><p class="text-gray-400 text-sm">個股下跌但板塊 ETF 仍在漲，或落後板塊 &gt; 1.5%。個股有問題。</p></div>
+    <div class="card box-glow-red reveal"><div class="flex items-center gap-2 mb-2"><span class="tag tag-critical">critical</span><span class="text-white font-bold">4. 板塊翻轉</span></div><p class="text-gray-400 text-sm">開盤排名前半 → 盤中翻至後半。板塊風向已變。</p></div>
+    <div class="card box-glow-red reveal"><div class="flex items-center gap-2 mb-2"><span class="tag tag-critical">critical</span><span class="text-white font-bold">5. 宏觀轉向</span></div><p class="text-gray-400 text-sm">🇺🇸 VIX 飆升 + TLT 暴漲 / 🇹🇼 加權指數急跌 &gt; 2%。市場分流判斷。</p></div>
+    <div class="card reveal"><div class="flex items-center gap-2 mb-2"><span class="tag tag-warning">warning</span><span class="text-white font-bold">6. 風格輪動反轉</span></div><p class="text-gray-400 text-sm">NQ/RTY 盤中反轉。大型成長 vs 小型價值資金流向翻轉。<span class="text-gray-600 text-xs">（僅美股）</span></p></div>
+    <div class="card box-glow-red reveal"><div class="flex items-center gap-2 mb-2"><span class="tag tag-critical">critical</span><span class="text-white font-bold">7. 歸籌法則</span></div><p class="text-gray-400 text-sm">虧損 &gt; 5% 強制停損提醒。你是在理性分析，還是在祈禱反彈？</p></div>
+    <div class="card reveal"><div class="flex items-center gap-2 mb-2"><span class="tag tag-warning">warning</span><span class="text-white font-bold">8. 力量衰竭</span></div><p class="text-gray-400 text-sm">量能萎縮 + 動能消退。買盤力量衰竭，考慮獲利了結。</p></div>
+  </div>
+</section>
+<!-- ============ SECTION 8: PROTOCOLS ============ -->
+<section class="section" id="sec-protocols">
+  <div class="reveal">
+    <span class="sec-num">08 — SPECIAL PROTOCOLS</span>
+    <h2 class="sec-title text-white">四大特殊協議</h2>
+    <p class="sec-sub mb-10">極端情境的自動化應對流程。</p>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div class="card box-glow-red reveal" style="border-left:3px solid var(--red)">
+      <p class="font-mono text-[.65rem] text-red-400 tracking-widest mb-2">PROTOCOL A</p>
+      <h4 class="text-white font-bold mb-2">恐慌處理流程</h4>
+      <p class="text-gray-400 text-sm leading-relaxed mb-3">🇺🇸 ES 期貨 -2% / 🇹🇼 加權指數 -2% 或夜盤崩跌 &gt; 300 點</p>
+      <div class="text-[.75rem] text-gray-500 space-y-1">
+        <p>→ 判斷事件性質（非理性 vs 基本面）</p>
+        <p>→ 檢查板塊跌幅均勻性</p>
+        <p>→ 開盤後觀察前 15 分鐘賣壓</p>
+        <p>→ <span class="text-red-300 font-bold">僅用 15% 試探倉進場</span></p>
+      </div>
+    </div>
+    <div class="card reveal" style="border-left:3px solid var(--cyan)">
+      <p class="font-mono text-[.65rem] text-cyan-400 tracking-widest mb-2">PROTOCOL B</p>
+      <h4 class="text-white font-bold mb-2">CIS 逆勢材料法則</h4>
+      <p class="text-gray-400 text-sm leading-relaxed mb-3">週末突發國際事件導致週一恐慌暴跌</p>
+      <div class="text-sm mt-3 p-3 rounded-lg" style="background:rgba(0,240,255,.05);border:1px solid rgba(0,240,255,.1)">
+        <p class="text-cyan-300 font-mono text-xs">「値動き順張り、材料逆張り」</p>
+        <p class="text-gray-400 text-xs mt-1">價格走勢順勢，消息面逆勢。僅適用突發事件。</p>
+      </div>
+    </div>
+    <div class="card reveal" style="border-left:3px solid var(--purple)">
+      <p class="font-mono text-[.65rem] text-purple-400 tracking-widest mb-2">PROTOCOL C</p>
+      <h4 class="text-white font-bold mb-2">大勝後冷卻機制</h4>
+      <p class="text-gray-400 text-sm leading-relaxed mb-3">單日獲利 &gt; 5%（或月均的 50%）自動觸發</p>
+      <div class="text-[.75rem] text-gray-500 space-y-1">
+        <p>Day 0 → 當天不再開新倉</p>
+        <p>Day 1 → 強制半倉</p>
+        <p>Day 2 → 恢復全倉</p>
+      </div>
+    </div>
+    <div class="card reveal" style="border-left:3px solid var(--gold)">
+      <p class="font-mono text-[.65rem] text-yellow-400 tracking-widest mb-2">PROTOCOL D</p>
+      <h4 class="text-white font-bold mb-2">財報季 / 結算日</h4>
+      <p class="text-gray-400 text-sm leading-relaxed mb-3">🇺🇸 財報連帶效應鏈分析 / 🇹🇼 期貨結算日 + MSCI 調整</p>
+      <div class="text-[.75rem] text-gray-500 space-y-1">
+        <p>→ 推演上下游影響（A 公司超預期 → 同業 B, C？）</p>
+        <p>→ <span class="text-yellow-300">找第二隻泥鰍</span>：已反映的跳過，未反映的就是獵物</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ SECTION 9: REPORT + BACKTEST ============ -->
+<section class="section" id="sec-report">
+  <div class="reveal">
+    <span class="sec-num">09 — DAILY REPORT & BACKTEST</span>
+    <h2 class="sec-title text-white">盤前日報 + 盤後回測</h2>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+    <div class="card box-glow-cyan reveal">
+      <h4 class="font-mono text-sm text-cyan-400 tracking-widest mb-4">盤前五軸日報</h4>
+      <div class="text-sm text-gray-400 space-y-3 leading-relaxed">
+        <p>每日自動生成完整五軸分析報告：</p>
+        <p>軸 1-2 → 宏觀方向 + 板塊排序<br>軸 3 → 背離偵測 + 板塊背離標記<br>軸 4 → <span class="text-white">3-5 檔獵物推薦</span> + 完整假說<br>軸 5 → 量能雷達異常掃描</p>
+        <div class="p-3 rounded-lg mt-3" style="background:rgba(0,240,255,.04);border:1px solid rgba(0,240,255,.1)">
+          <p class="text-cyan-300 text-xs font-mono mb-1">假說四道品質關卡</p>
+          <p class="text-gray-500 text-xs">背離幅度夠大？→ 有可解釋的邏輯鏈？→ 有明確量價驗證條件？→ 停損條件明確？</p>
+        </div>
+      </div>
+    </div>
+    <div class="card box-glow-green reveal">
+      <h4 class="font-mono text-sm text-green-400 tracking-widest mb-4">盤後回測引擎</h4>
+      <div class="text-sm text-gray-400 space-y-2 leading-relaxed">
+        <p>自動計算每日交易績效：</p>
+        <div class="grid grid-cols-2 gap-2 mt-3">
+          <div class="p-2 rounded" style="background:rgba(0,255,136,.04)"><span class="text-green-300 font-mono text-xs">勝率</span></div>
+          <div class="p-2 rounded" style="background:rgba(0,255,136,.04)"><span class="text-green-300 font-mono text-xs">利潤因子</span></div>
+          <div class="p-2 rounded" style="background:rgba(0,255,136,.04)"><span class="text-green-300 font-mono text-xs">最大回撤</span></div>
+          <div class="p-2 rounded" style="background:rgba(0,255,136,.04)"><span class="text-green-300 font-mono text-xs">Sharpe 指標</span></div>
+          <div class="p-2 rounded" style="background:rgba(0,255,136,.04)"><span class="text-green-300 font-mono text-xs">淨損益</span></div>
+          <div class="p-2 rounded" style="background:rgba(0,255,136,.04)"><span class="text-green-300 font-mono text-xs">假說準確率</span></div>
+        </div>
+        <p class="text-gray-600 text-xs mt-3">歷史紀錄自動存檔，支援回顧最近 30 個交易日</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ SECTION 10: MARKET SEGREGATION ============ -->
+<section class="section" id="sec-market">
+  <div class="reveal">
+    <span class="sec-num">10 — MARKET SEGREGATION</span>
+    <h2 class="sec-title text-white">台美雙市場區隔</h2>
+    <p class="sec-sub mb-10">同時持有台股和美股倉位，警報和判斷邏輯完全獨立。</p>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="card reveal">
+      <div class="text-2xl mb-2">🔍</div>
+      <h4 class="text-white font-bold text-sm mb-1">自動偵測市場</h4>
+      <p class="text-gray-500 text-xs">輸入 <span class="font-mono text-cyan-300">2330</span> → 自動判定台股<br>輸入 <span class="font-mono text-cyan-300">NVDA</span> → 自動判定美股</p>
+    </div>
+    <div class="card reveal">
+      <div class="text-2xl mb-2">🚨</div>
+      <h4 class="text-white font-bold text-sm mb-1">恐慌協議獨立</h4>
+      <p class="text-gray-500 text-xs">🇺🇸 看 ES 期貨<br>🇹🇼 看加權指數 + 夜盤<br>各自觸發，互不干擾</p>
+    </div>
+    <div class="card reveal">
+      <div class="text-2xl mb-2">📊</div>
+      <h4 class="text-white font-bold text-sm mb-1">賣出訊號分流</h4>
+      <p class="text-gray-500 text-xs">宏觀轉向用對應市場指標<br>風格輪動僅適用美股<br>台股用 TAIEX + 宏觀標籤</p>
+    </div>
+    <div class="card reveal">
+      <div class="text-2xl mb-2">🏷️</div>
+      <h4 class="text-white font-bold text-sm mb-1">警報標記來源</h4>
+      <p class="text-gray-500 text-xs">每則警報標記 🇺🇸 或 🇹🇼<br>一眼分辨市場來源<br>不會混在一起誤判</p>
+    </div>
+  </div>
+</section>
+<!-- ============ SECTION 11: DASHBOARD ============ -->
+<section class="section" id="sec-dashboard">
+  <div class="reveal">
+    <span class="sec-num">11 — LIVE DASHBOARD</span>
+    <h2 class="sec-title text-white">即時監控面板</h2>
+    <p class="sec-sub mb-10">WebSocket 即時推播，30 秒自動掃描。所有數據一頁掌握。</p>
+  </div>
+  <div class="card box-glow-cyan reveal">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 text-center">
+      <div class="p-3 rounded-lg" style="background:rgba(0,240,255,.04)"><p class="font-mono text-[.6rem] text-cyan-400 tracking-wider">MACRO</p><p class="text-white text-xs mt-1">宏觀環境</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(0,240,255,.04)"><p class="font-mono text-[.6rem] text-cyan-400 tracking-wider">FUTURES</p><p class="text-white text-xs mt-1">期貨報價</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(0,240,255,.04)"><p class="font-mono text-[.6rem] text-cyan-400 tracking-wider">SECTORS</p><p class="text-white text-xs mt-1">板塊排名</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(0,240,255,.04)"><p class="font-mono text-[.6rem] text-cyan-400 tracking-wider">DIVERGENCE</p><p class="text-white text-xs mt-1">背離雷達</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(0,240,255,.04)"><p class="font-mono text-[.6rem] text-cyan-400 tracking-wider">ALERTS</p><p class="text-white text-xs mt-1">警報歷史</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(0,240,255,.04)"><p class="font-mono text-[.6rem] text-cyan-400 tracking-wider">IRON RULES</p><p class="text-white text-xs mt-1">鐵律提醒</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(0,255,136,.04)"><p class="font-mono text-[.6rem] text-green-400 tracking-wider">TW PANEL</p><p class="text-white text-xs mt-1">台股專區</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(0,240,255,.04)"><p class="font-mono text-[.6rem] text-cyan-400 tracking-wider">WATCHLIST</p><p class="text-white text-xs mt-1">觀察清單</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(0,240,255,.04)"><p class="font-mono text-[.6rem] text-cyan-400 tracking-wider">CONFIRM</p><p class="text-white text-xs mt-1">三重確認</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(0,240,255,.04)"><p class="font-mono text-[.6rem] text-cyan-400 tracking-wider">POSITIONS</p><p class="text-white text-xs mt-1">持倉追蹤</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(255,56,96,.04)"><p class="font-mono text-[.6rem] text-red-400 tracking-wider">SELL SIGNALS</p><p class="text-white text-xs mt-1">賣出訊號</p></div>
+      <div class="p-3 rounded-lg" style="background:rgba(255,215,0,.04)"><p class="font-mono text-[.6rem] text-yellow-400 tracking-wider">DAILY REPORT</p><p class="text-white text-xs mt-1">盤前日報</p></div>
+    </div>
+    <div class="flex flex-wrap gap-3 mt-6 pt-4 border-t border-gray-800 text-[.7rem] text-gray-500">
+      <span>Socket.IO 即時推播</span><span>·</span><span>30 秒掃描週期</span><span>·</span><span>桌面通知</span><span>·</span><span>音效警報</span><span>·</span><span>深色主題</span><span>·</span><span>ECharts 圖表</span>
+    </div>
+  </div>
+</section>
+<!-- ============ SECTION 12: ROBUSTNESS ============ -->
+<section class="section" id="sec-robust">
+  <div class="reveal">
+    <span class="sec-num">12 — SYSTEM ROBUSTNESS</span>
+    <h2 class="sec-title text-white">系統穩健性</h2>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mt-8">
+    <div class="card reveal text-center"><p class="text-cyan-400 text-2xl mb-2">🔒</p><p class="text-white text-sm font-bold">線程鎖</p><p class="text-gray-500 text-xs mt-1">_scan_lock 防止掃描重疊，API 與 scan 互斥</p></div>
+    <div class="card reveal text-center"><p class="text-green-400 text-2xl mb-2">🔄</p><p class="text-white text-sm font-bold">自動重連</p><p class="text-gray-500 text-xs mt-1">Fugle WebSocket 斷線 5 秒自動重連</p></div>
+    <div class="card reveal text-center"><p class="text-yellow-400 text-2xl mb-2">⚡</p><p class="text-white text-sm font-bold">速率限制</p><p class="text-gray-500 text-xs mt-1">滑動窗口限流器，防止 API 過載</p></div>
+    <div class="card reveal text-center"><p class="text-purple-400 text-2xl mb-2">🛡️</p><p class="text-white text-sm font-bold">四層後備</p><p class="text-gray-500 text-xs mt-1">任何數據源失效，自動切換下一層</p></div>
+    <div class="card reveal text-center"><p class="text-red-400 text-2xl mb-2">⚠️</p><p class="text-white text-sm font-bold">孤兒保護</p><p class="text-gray-500 text-xs mt-1">模型切換時偵測並警告孤立倉位</p></div>
+  </div>
+</section>
+<!-- ============ FOOTER ============ -->
+<footer class="py-20 text-center border-t" style="border-color:var(--border)">
+  <p class="text-lg md:text-xl font-light tracking-[.15em] text-gray-500 mb-4">
+    「背離給你方向，量價給你時機，<span class="text-white font-bold">紀律讓你活著</span>」
+  </p>
+  <p class="font-mono text-[.65rem] tracking-[.3em] text-gray-700 mt-8">CIS HUNTER MONITOR — BUILT FOR DISCIPLINE</p>
+</footer>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// Progress bar
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const pct=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+  document.getElementById('progress').style.width=pct+'%';
+});
+
+// Reveal animations
+gsap.utils.toArray('.reveal').forEach(el=>{
+  gsap.to(el,{opacity:1,y:0,duration:.7,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 88%',toggleActions:'play none none none'}});
+});
+gsap.utils.toArray('.reveal-left').forEach(el=>{
+  gsap.to(el,{opacity:1,x:0,duration:.7,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 88%'}});
+});
+gsap.utils.toArray('.reveal-right').forEach(el=>{
+  gsap.to(el,{opacity:1,x:0,duration:.7,ease:'power2.out',scrollTrigger:{trigger:el,start:'top 88%'}});
+});
+
+// Hero entrance
+gsap.from('#hero-tag',{opacity:0,y:-20,duration:1,delay:.3});
+gsap.from('#hero h1',{opacity:0,scale:.9,duration:1.2,delay:.5,ease:'power3.out'});
+gsap.from('#hero h2',{opacity:0,y:20,duration:1,delay:.8});
+
+// ── ECharts: VIX Regimes ──
+const vixChart=echarts.init(document.getElementById('chart-vix'),null,{renderer:'svg'});
+vixChart.setOption({
+  tooltip:{trigger:'axis',backgroundColor:'rgba(12,18,32,.95)',borderColor:'rgba(0,240,255,.2)',textStyle:{fontFamily:'JetBrains Mono',color:'#ccc',fontSize:11},formatter:p=>`<b style="color:${p[0].color}">${p[0].name}</b><br/>部位上限: <b>${p[0].value}%</b>`},
+  grid:{left:60,right:30,top:20,bottom:35},
+  xAxis:{type:'category',data:['極低波動\n(0-14)','正常波動\n(14-20)','高波動\n(20-30)','極端恐慌\n(30-40)','市場崩潰\n(40+)'],axisLine:{lineStyle:{color:'#1a2540'}},axisLabel:{color:'#8892a8',fontSize:10,fontFamily:'Noto Sans TC'}},
+  yAxis:{type:'value',max:120,axisLine:{show:false},splitLine:{lineStyle:{color:'rgba(26,37,64,.5)'}},axisLabel:{color:'#666',fontSize:10,fontFamily:'JetBrains Mono',formatter:v=>v+'%'}},
+  series:[{type:'bar',data:[
+    {value:110,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#00f0ff'},{offset:1,color:'#0066aa'}])}},
+    {value:100,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#00ff88'},{offset:1,color:'#009955'}])}},
+    {value:70,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#ffd700'},{offset:1,color:'#aa8800'}])}},
+    {value:20,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#ff6644'},{offset:1,color:'#aa2200'}])}},
+    {value:5,itemStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#ff3860'},{offset:1,color:'#880022'}])}}
+  ],barWidth:'55%',label:{show:true,position:'top',color:'#aaa',fontFamily:'JetBrains Mono',fontSize:11,formatter:p=>p.value+'%'}}]
+});
+
+// ── ECharts: PV Scoring Radar ──
+const pvChart=echarts.init(document.getElementById('chart-pv'),null,{renderer:'svg'});
+pvChart.setOption({
+  tooltip:{backgroundColor:'rgba(12,18,32,.95)',borderColor:'rgba(0,240,255,.2)',textStyle:{fontFamily:'JetBrains Mono',color:'#ccc',fontSize:11}},
+  radar:{indicator:[
+    {name:'動能方向\n(2.5)',max:2.5},{name:'量價配合\n(2.0)',max:2},{name:'連續天數\n(1.5)',max:1.5},{name:'MA20 位置\n(2.0)',max:2},{name:'フォース\n(2.0)',max:2}
+  ],shape:'polygon',splitNumber:3,
+  axisName:{color:'#8892a8',fontSize:10,fontFamily:'Noto Sans TC'},
+  splitLine:{lineStyle:{color:'rgba(0,240,255,.1)'}},
+  splitArea:{areaStyle:{color:['rgba(0,240,255,.02)','rgba(0,240,255,.04)','rgba(0,240,255,.02)']}},
+  axisLine:{lineStyle:{color:'rgba(0,240,255,.15)'}}},
+  series:[{type:'radar',symbol:'circle',symbolSize:6,
+    data:[{value:[2.2,1.8,1.2,1.7,2.0],name:'示範得分 8.9/10',areaStyle:{color:'rgba(0,240,255,.12)'},lineStyle:{color:'#00f0ff',width:2},itemStyle:{color:'#00f0ff'}}]
+  }]
+});
+
+// Resize
+window.addEventListener('resize',()=>{vixChart.resize();pvChart.resize()});
+ScrollTrigger.addEventListener('refresh',()=>{vixChart.resize();pvChart.resize()});
+</script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"75124c326cb447fe934cde04713ae013","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
+</body>
+</html>
